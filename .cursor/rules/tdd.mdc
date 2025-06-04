@@ -1,0 +1,6 @@
+Implement the functionality using Test-Driven Development (TDD).
+First, write clear, minimal unit tests using pytest, describing expected inputs and outputs.
+Then write just enough code to make each test pass.
+Follow clean code practices, use type hints, and structure logic for testability.
+Ensure tests cover edge cases, data validation, and failure scenarios.
+Prioritize modular and side-effect-free code where possible.

@@ -1,0 +1,7 @@
+Write SQL that is clean, optimized, and production-ready.
+Prefer Common Table Expressions (CTEs) over deeply nested subqueries for clarity.
+Follow sqlfluff-compliant formatting: lowercase keywords, aligned indentation, and consistent spacing.
+Use views when logic needs abstraction or reuse.
+Optimize queries by leveraging table partitions, efficient joins, indexes, and predicate pushdown.
+Include light comments to explain non-obvious logic.
+Emphasize maintainability and performance at scale.

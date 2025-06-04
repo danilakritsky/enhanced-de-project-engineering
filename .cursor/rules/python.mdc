@@ -1,0 +1,7 @@
+Write Python code that is clean, optimized, and production-ready.
+Use type annotations, PEP8 style, and meaningful variable names.
+Prioritize performance and readability.
+Handle edge cases and errors gracefully.
+Use vectorized operations (e.g. pandas, polars) over loops where applicable.
+If using async or I/O operations, prefer asyncio-friendly libraries.
+Comment complex logic, and structure code in reusable functions or modules.
