@@ -152,14 +152,14 @@ select
     o.order_id,
     o.customer_id,
     gs.gross_sales,
-    coalesce(sum(r.amount) filter (where r.created_at = current_date - 1), 0) as total_refund,
+    coalesce(sum(r.amount) filter (where r.created_at = current_date - 1) over (partition by o.order_id), 0) as total_refund,
     c.iso_code as currency
 from orders o
 left join gross_sales_per_order gs on gs.order_id = o.order_id
 left join refunds r on r.order_id = o.order_id
 left join currencies c on c.currency_id = o.currency_id
 where o.created_at = current_date - 1
-group by o.order_id, o.customer_id, gs.gross_sales, c.iso_code
+group by o.order_id, o.customer_id, gs.gross_sales, c.iso_code -- This GROUP BY caused issues
 order by gs.gross_sales desc;
 ```
 
@@ -167,6 +167,37 @@ order by gs.gross_sales desc;
 - The `sum(r.amount) filter (where r.created_at = current_date - 1)` computes the total refund for each order for the previous day, inline, without a subquery or CTE.
 - This approach is more concise and can be more efficient in PostgreSQL, but is not portable to SQLite.
 - For maximum compatibility and testability, the CTE-based approach is used in the main `.sql` file and tests.
+
+### Problematic Areas Encountered During Implementation
+Despite the theoretical potential of using window functions directly on joined tables for aggregation, this approach presented significant challenges during implementation, leading to its abandonment in favor of the CTE strategy.
+
+Here was the problematic query structure that attempted to apply window functions directly after joining:
+
+```sql
+select
+    o.order_id,
+    o.customer_id,
+    sum(oi.quantity * oi.unit_price) filter (where oi.status = 'FULFILLED') over (partition by o.order_id) as gross_sales,
+    coalesce(sum(r.amount) filter (where r.created_at = '2024-06-10') over (partition by o.order_id), 0) as total_refund,
+    c.iso_code as currency
+from orders o
+left join order_items oi on oi.order_id = o.order_id
+left join refunds r on r.order_id = o.order_id
+left join currencies c on c.currency_id = o.currency_id
+where o.created_at = '2024-06-10'
+group by o.order_id, o.customer_id, c.iso_code -- This GROUP BY caused a GroupingError
+order by gross_sales desc;
+```
+
+Key problems encountered:
+
+1.  **Incorrect Aggregation (Double Counting of Refunds)**: When joining `orders`, `order_items`, and `refunds` directly as shown above, an order with multiple associated `order_items` and a refund on the target date would have the refund row duplicated for each matching `order_item`. While the `sum(oi.quantity * oi.unit_price) over (partition by o.order_id)` window function correctly aggregates item sales per order regardless of join duplication, the `sum(r.amount) over (partition by o.order_id)` function would sum the *duplicated* refund amounts across the joined rows for that order, resulting in an incorrect, inflated total refund amount (double-counting).
+
+2.  **`GROUP BY` Conflict (`psycopg2.errors.GroupingError`)**: In the presence of window functions in the `SELECT` list that partition by `o.order_id`, the explicit `GROUP BY o.order_id, o.customer_id, c.iso_code` clause in the final query caused a `psycopg2.errors.GroupingError`. This is because the `GROUP BY` clause operates on the rows *before* the window functions are applied, and it was incompatible with the windowing logic intended to produce one result row per order. Removing the `GROUP BY` resolved this specific error but did not fix the fundamental double-counting issue caused by the joins.
+
+3.  **Implementation Complexity**: Correctly structuring the query to avoid double-counting while fully leveraging window functions after joins proved significantly more complex and less intuitive compared to the CTE approach, which naturally handles pre-aggregation within CTEs before joining.
+
+Due to these issues and the successful implementation and validation of the CTE strategy, the CTE approach was chosen as the final optimized query.
 
 *Next step: Recommend indexes for the optimized query.*
 
@@ -271,3 +302,11 @@ order by gs.gross_sales desc;
 - Continue to monitor performance as data grows and revisit indexes/plan as needed.
 
 *Next step: Output the final production query and checklist.*
+
+# Conclusion: Chosen Optimization Strategy
+
+Based on implementation and testing, the **CTE + Early Filter Strategy** has been chosen as the final optimized query for the revenue report. This approach proved to be robust and correctly produced the expected results during testing.
+
+The **Window Function Strategy**, while theoretically promising, presented challenges in implementation for this specific query structure, leading to incorrect aggregation (double-counting of refunds) due to interactions between joins and window partitioning. Despite attempts to refactor, achieving the correct logic with window functions in this context proved more complex and less straightforward than the CTE approach.
+
+The CTE strategy, which aggregates sales and refunds independently before joining with orders and currencies, effectively addresses the identified bottlenecks and aligns well with standard practices for such calculations. Performance benchmarking will be conducted on this CTE-based optimized query.
