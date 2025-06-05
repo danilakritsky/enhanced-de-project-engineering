@@ -1,0 +1,83 @@
+# Enhanced DE Prompt Engineering
+
+This repository contains experiments and solutions for data engineering tasks using prompt engineering techniques.
+
+## Task 1: Revenue Report Optimization
+
+This task focused on optimizing a PostgreSQL query used to generate a nightly revenue and refunds report. The original query performance had degraded, exceeding the required SLA of 15 seconds.
+
+The process involved analyzing the original query, identifying performance bottlenecks, proposing and evaluating optimization strategies (specifically CTEs vs. Window Functions), recommending indexing, implementing the chosen solution, and setting up automated testing and benchmarking.
+
+### Project Structure
+
+The relevant parts of the project structure for Task 1 are:
+
+-   `queries/task_01/`: Contains the SQL files for Task 1.
+    -   `revenue_report_original.sql`: The initial, slow query.
+    -   `revenue_report_cte.sql`: The optimized query using CTEs.
+-   `analyses/`: Contains analysis documents.
+    -   `analysis_task_01.md`: Comprehensive document covering query analysis, optimization strategies, indexing recommendations, and conclusions for Task 1.
+-   `chatgpt_prompts/`: Contains prompt definitions.
+    -   `plan_task_01.md`: The plan used for Task 1.
+-   `tasks/`: Contains task definitions.
+    -   `task_01.md`: The original definition for Task 1.
+    -   `task_02.md`: The definition for Task 2.
+-   `tests/`: Contains the test suite for validating the query logic and benchmarking performance.
+    -   `test_revenue_report_postgres.py`: Pytest tests for the revenue report query, including a basic correctness test and a benchmark comparison test.
+    -   `conftest.py`: Pytest fixtures for setting up the test PostgreSQL database connection.
+-   `utils/`: Contains utility functions, specifically for running and parsing `EXPLAIN ANALYZE` output for benchmarking.
+    -   `benchmark.py`: Includes functions to execute and interpret query explain plans.
+-   `pyproject.toml`: Configuration file for project dependencies (`uv`), linting (`ruff`), and formatting (`sqlfluff`), and testing (`pytest`).
+-   `.pre-commit-config.yaml`: Configuration for pre-commit hooks to automate code quality checks.
+-   `docker-compose.yml`: Defines the Docker services, including the test PostgreSQL database.
+
+### Setting up the Test Database (Docker)
+
+The test suite requires a running PostgreSQL database. This project uses Docker Compose to define and manage the test database service.
+
+1.  Ensure you have Docker and Docker Compose installed.
+2.  Navigate to the root of the repository in your terminal.
+3.  Start the PostgreSQL container using Docker Compose:
+
+    ```bash
+    docker-compose up -d db
+    ```
+
+    This will start a PostgreSQL container in the background. The test suite is configured to connect to this database using the details specified in the `POSTGRES_TEST_DSN` environment variable or the default DSN.
+
+4.  To stop the container, run:
+
+    ```bash
+    docker-compose down
+    ```
+
+### Development Dependencies
+
+The project uses `uv` for dependency management. Key development dependencies include:
+
+-   `pytest`: For running the test suite.
+-   `sqlfluff`: For linting and formatting SQL files.
+-   `ruff`: For linting Python files.
+-   `psycopg2-binary`: PostgreSQL adapter for Python.
+
+Dependencies can be installed using `uv`:
+
+```bash
+uv sync
+```
+
+### Running Tests and Checks
+
+Automated checks, including linting, formatting, and tests, are configured with pre-commit. You can run all checks using `uv`:
+
+```bash
+uv run pre-commit run --all-files
+```
+
+Alternatively, you can run the pytest suite directly:
+
+```bash
+uv run python -m pytest tests/
+```
+
+The benchmark comparison test (`test_benchmark_query_comparison`) in `tests/test_revenue_report_postgres.py` runs `EXPLAIN (ANALYZE, BUFFERS)` on both the original (without indexes) and optimized (with indexes) queries. The output of this test in the terminal provides detailed query plans and metrics (execution time, buffer usage, join strategies) that can be used to compare the performance characteristics of the two queries.

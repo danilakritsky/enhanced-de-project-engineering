@@ -42,8 +42,11 @@ def test_revenue_report_basic_postgres(pg_conn):
     """
     Test the revenue report query for orders on 2024-06-10 in PostgreSQL (window function version).
     """
-    with open("enhanced_de_prompt_engineering/queries/revenue_report_cte.sql") as f:
-        query = f.read() % {"target_date": "'2024-06-10'"}
+    with open("enhanced_de_prompt_engineering/queries/task_01/revenue_report_cte.sql") as f:
+        query = f.read()
+    # Replace CURRENT_DATE - 1 with the hardcoded test date for repeatability
+    query = query.replace('current_date - 1', "'2024-06-10'")
+
     results = run_revenue_report_query_pg(pg_conn, query)
     # Convert Decimal to float for comparison
     results = [convert_decimals(row) for row in results]
@@ -53,28 +56,6 @@ def test_revenue_report_basic_postgres(pg_conn):
     ]
     assert results == expected
 
-def test_benchmark_optimized_query(pg_conn):
-    """
-    Benchmark the optimized query using EXPLAIN ANALYZE and print key metrics.
-    Only require execution_time_ms; buffer metrics are optional for small queries.
-    """
-    create_indexes(pg_conn)
-    with open("enhanced_de_prompt_engineering/queries/revenue_report_cte.sql") as f:
-        query = f.read() % {"target_date": "'2024-06-10'"}
-    explain_output = run_explain_analyze(pg_conn, query)
-    metrics = parse_explain_output(explain_output)
-    print("\nEXPLAIN ANALYZE metrics (CTE):")
-    print(explain_output)
-    print("Metrics:", metrics)
-    assert 'execution_time_ms' in metrics
-    # Buffer metrics may not be present for trivial queries; check if present
-    if 'shared_read_blocks' in metrics:
-        assert isinstance(metrics['shared_read_blocks'], int)
-    if 'shared_hit_blocks' in metrics:
-        assert isinstance(metrics['shared_hit_blocks'], int)
-
-# Add a new test to compare original and optimized query performance
-
 def test_benchmark_query_comparison(pg_conn):
     """
     Benchmark original and optimized queries using EXPLAIN ANALYZE and compare execution times.
@@ -83,8 +64,10 @@ def test_benchmark_query_comparison(pg_conn):
     # Ensure no relevant indexes are present for the original query benchmark
     drop_indexes(pg_conn)
 
-    with open("enhanced_de_prompt_engineering/queries/revenue_report_original.sql") as f:
-        original_query = f.read() % {"CURRENT_DATE - 1": "'2024-06-10'"} # Parameterize date for testing
+    with open("enhanced_de_prompt_engineering/queries/task_01/revenue_report_original.sql") as f:
+        original_query = f.read()
+    # Replace CURRENT_DATE - 1 with the hardcoded test date for testing
+    original_query = original_query.replace('CURRENT_DATE - 1', "'2024-06-10'")
 
     print("\n--- Running EXPLAIN ANALYZE for Original Query (No Indexes) ---")
     original_explain = run_explain_analyze(pg_conn, original_query)
@@ -95,8 +78,10 @@ def test_benchmark_query_comparison(pg_conn):
     # Create indexes before benchmarking the optimized query
     create_indexes(pg_conn)
 
-    with open("enhanced_de_prompt_engineering/queries/revenue_report_cte.sql") as f:
-        optimized_query = f.read() % {"target_date": "'2024-06-10'"}
+    with open("enhanced_de_prompt_engineering/queries/task_01/revenue_report_cte.sql") as f:
+        optimized_query = f.read()
+    # Replace CURRENT_DATE - 1 with the hardcoded test date for repeatability
+    optimized_query = optimized_query.replace('current_date - 1', "'2024-06-10'")
 
     print("\n--- Running EXPLAIN ANALYZE for Optimized (CTE) Query (With Indexes) ---")
     optimized_explain = run_explain_analyze(pg_conn, optimized_query)

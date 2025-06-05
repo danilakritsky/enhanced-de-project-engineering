@@ -104,7 +104,7 @@ Output the final optimized query, combining:
 - Inline refund calculation with FILTER
 - All relevant joins and columns
 
-Save to `queries/revenue_report.sql`.
+Save to `queries/task_01/revenue_report_cte.sql`. This file contains the final optimized query using the CTE + Early Filter strategy.
 Add comments and include a section with a checklist:
 - [x] Under 15s on large data
 - [x] Uses indexes where possible

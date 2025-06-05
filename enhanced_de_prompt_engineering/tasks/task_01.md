@@ -1,5 +1,5 @@
 # Task 1
-A nightly job generates the “Yesterday Revenue & Refunds” CSV for Finance.
+A nightly job generates the "Yesterday Revenue & Refunds" CSV for Finance.
 Since feature growth, the query now takes ~70 s on the warehouse (PostgreSQL 15).
 Finance needs it below 15 s to meet the SLA.
 
@@ -35,10 +35,10 @@ Prompt ChatGPT to spot bottlenecks (two big sequential scans, three hash joins, 
 Ask it for at least two optimisation strategies, e.g.
 Rewrite with window functions to remove the self-aggregating sub-query.
 Filter early by moving status='FULFILLED' and the date predicate into CTEs.
-Create a partial index on order_items(created_at, status, order_id) WHERE status=‘FULFILLED’.
+Create a partial index on order_items(created_at, status, order_id) WHERE status='FULFILLED'.
 
 
-In Cursor: In the repo open revenue_report.sql, highlight the query, press Ctrl + K →
-“Rewrite to use a single window-function to pass over order_items (partition by order_id) and JOIN that result to orders. Eliminate the refunds sub-query by turning it into a window sum on refunds with a FILTER clause. Add EXPLAIN ANALYZE before and after.”
+In Cursor: In the repo open queries/task_01/revenue_report_cte.sql, highlight the query, press Ctrl + K →
+"Rewrite to use a single window-function to pass over order_items (partition by order_id) and JOIN that result to orders. Eliminate the refunds sub-query by turning it into a window sum on refunds with a FILTER clause. Add EXPLAIN ANALYZE before and after."
 
 Experiment and try ChatGPT as well as Cursor.

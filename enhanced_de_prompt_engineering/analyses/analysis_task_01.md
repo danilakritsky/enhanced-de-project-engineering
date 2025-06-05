@@ -310,3 +310,7 @@ Based on implementation and testing, the **CTE + Early Filter Strategy** has bee
 The **Window Function Strategy**, while theoretically promising, presented challenges in implementation for this specific query structure, leading to incorrect aggregation (double-counting of refunds) due to interactions between joins and window partitioning. Despite attempts to refactor, achieving the correct logic with window functions in this context proved more complex and less straightforward than the CTE approach.
 
 The CTE strategy, which aggregates sales and refunds independently before joining with orders and currencies, effectively addresses the identified bottlenecks and aligns well with standard practices for such calculations. Performance benchmarking will be conducted on this CTE-based optimized query.
+
+For the final production query with documentation and checklist, see `enhanced_de_prompt_engineering/queries/task_01/revenue_report_cte.sql`.
+
+The plan followed for this task can be found at `enhanced_de_prompt_engineering/chatgpt_prompts/plan_task_01.md`.
