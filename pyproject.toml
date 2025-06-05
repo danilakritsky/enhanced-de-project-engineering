@@ -5,3 +5,11 @@ description = "A set of tasks to practice prompt engineering for Data Engineerin
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []
+
+[dependency-groups]
+dev = [
+    "mypy>=1.16.0",
+    "pre-commit>=4.2.0",
+    "pytest>=8.4.0",
+    "sqlfluff>=3.4.0",
+]

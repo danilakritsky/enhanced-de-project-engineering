@@ -1,3 +1,8 @@
+---
+description: 
+globs: *.py
+alwaysApply: false
+---
 Write Python code that is clean, optimized, and production-ready.
 Use type annotations, PEP8 style, and meaningful variable names.
 Prioritize performance and readability.

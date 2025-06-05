@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
 Implement the functionality using Test-Driven Development (TDD).
 First, write clear, minimal unit tests using pytest, describing expected inputs and outputs.
 Then write just enough code to make each test pass.

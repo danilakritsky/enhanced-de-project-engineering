@@ -1,3 +1,8 @@
+---
+description: 
+globs: *.sql
+alwaysApply: false
+---
 Write SQL that is clean, optimized, and production-ready.
 Prefer Common Table Expressions (CTEs) over deeply nested subqueries for clarity.
 Follow sqlfluff-compliant formatting: lowercase keywords, aligned indentation, and consistent spacing.
