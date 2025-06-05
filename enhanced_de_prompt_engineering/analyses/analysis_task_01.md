@@ -313,4 +313,4 @@ The CTE strategy, which aggregates sales and refunds independently before joinin
 
 For the final production query with documentation and checklist, see `enhanced_de_prompt_engineering/queries/task_01/revenue_report_cte.sql`.
 
-The plan followed for this task can be found at `enhanced_de_prompt_engineering/chatgpt_prompts/plan_task_01.md`.
+The plan followed for this task can be found at `enhanced_de_prompt_engineering/plans/plan_task_01.md`.
