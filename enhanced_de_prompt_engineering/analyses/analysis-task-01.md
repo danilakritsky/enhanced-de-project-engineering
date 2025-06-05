@@ -174,3 +174,46 @@ order by gs.gross_sales desc;
 - From this point forward, the implementation, optimizations, and tests will focus exclusively on PostgreSQL.
 - This allows us to leverage advanced Postgres features (e.g., FILTER, partial indexes, advanced window functions) and optimize for production performance.
 - SQLite compatibility will no longer be maintained or tested.
+
+# Step 5: Recommend Indexes
+
+## Recommended Indexes for the Optimized Query
+
+### 1. Partial Index on order_items for Fulfilled Status
+```sql
+create index concurrently if not exists idx_order_items_fulfilled
+    on order_items (order_id, created_at)
+    where status = 'FULFILLED';
+```
+- **Table**: order_items
+- **Columns**: order_id, created_at
+- **Filter**: status = 'FULFILLED'
+- **Purpose**: Accelerates the CTE that aggregates gross sales for fulfilled items, and speeds up joins to orders. Reduces scan size and improves aggregation performance.
+
+### 2. Partial Index on refunds for Recent Date
+```sql
+create index concurrently if not exists idx_refunds_recent
+    on refunds (order_id, created_at)
+    where created_at = '2024-06-10';
+```
+- **Table**: refunds
+- **Columns**: order_id, created_at
+- **Filter**: created_at = '2024-06-10' (should be parameterized in production)
+- **Purpose**: Speeds up the CTE that aggregates refunds for the target date, reducing scan and join cost.
+
+### 3. Index on orders for Date Filtering
+```sql
+create index concurrently if not exists idx_orders_created_at
+    on orders (created_at);
+```
+- **Table**: orders
+- **Columns**: created_at
+- **Purpose**: Accelerates filtering of orders for the target date, reducing sequential scan cost.
+
+## Indexing Notes
+- Use `concurrently` to avoid locking tables during index creation in production.
+- Partial indexes are highly selective and efficient for large tables with many irrelevant rows.
+- In production, parameterize the date in partial indexes to match the reporting period (e.g., yesterday).
+- Regularly monitor and maintain indexes to avoid bloat and ensure continued performance.
+
+*Next step: Benchmark with EXPLAIN ANALYZE and compare original vs. optimized query.*
