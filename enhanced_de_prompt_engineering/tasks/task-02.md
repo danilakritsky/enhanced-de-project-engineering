@@ -39,6 +39,6 @@ Calculate the average order value for the last three months.
 
 
 ## Expected Results:
-Total sales for March: 27,000 
+Total sales for March: 27,000
 Top-spending customer: Alice (20,000 )
-Average order value (total sales / number of orders): 6,000 
+Average order value (total sales / number of orders): 6,000

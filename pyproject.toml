@@ -11,5 +11,51 @@ dev = [
     "mypy>=1.16.0",
     "pre-commit>=4.2.0",
     "pytest>=8.4.0",
+    "ruff>=0.11.12",
     "sqlfluff>=3.4.0",
 ]
+
+[tool.sqlfluff.core]
+dialect = "postgres"
+sql_file_exts = ".sql"
+exclude_rules = [
+  "ambiguous.column_count",  # allow using SELECT *
+  "ambiguous.column_references",  # allow GROUP BY ALL
+  "structure.using",  # allow USING instead of explicit ON
+  "structure.unused_cte"  # leave unused CTE for reference
+]
+max_line_length = 120
+
+[tool.sqlfluff.indentation]
+indent_unit = "space"
+tab_space_size = 4
+indent_width = 4
+indented_joins = true
+indented_using_on = true
+template_blocks_indent = false
+allow_implicit_indents = true
+indented_ctes = false  # don't indent CTEs under WITH
+indented_on_contents = false  # don't indent AND subsections
+
+[tool.sqlfluff.rules.capitalisation.keywords]
+capitalisation_policy = "lower"
+
+[tool.sqlfluff.rules.aliasing.table]
+aliasing = "explicit"
+
+[tool.sqlfluff.rules.references.keywords]
+ignore_words = [
+  "date",
+  "hour",
+  "target",
+  "source",
+  "table"
+]
+
+[tool.mypy]
+disable_error_code = [
+  # don't expect bytes when using str
+  'str-bytes-safe'
+]
+namespace_packages = true
+explicit_package_bases = true

@@ -1,0 +1,72 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+        exclude: '\.webm$'
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: check-json
+      - id: pretty-format-json
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.37.0
+    hooks:
+      - id: yamllint
+        args: [
+          --format, colored,
+          -d, "{
+              extends: default,
+              rules: {
+                line-length: disable
+              }
+          }",
+        ]
+  - repo: local
+    hooks:
+      - id: ruff
+        language: system
+        name: ruff
+        entry: uv run ruff check --fix enhanced_de_prompt_engineering tests
+        pass_filenames: false
+
+      - id: isort
+        language: python
+        name: ruff
+        entry: uv run ruff check --select I --fix enhanced_de_prompt_engineering tests
+        pass_filenames: false
+
+      - id: sqlfluff-fix
+        language: system
+        name: sqlfluff fix
+        entry: uv run sqlfluff fix --config pyproject.toml enhanced_de_prompt_engineering/queries
+        pass_filenames: false
+
+      - id: sqlfluff-lint
+        language: system
+        name: sqlfluff lint
+        entry: uv run sqlfluff fix --config pyproject.toml enhanced_de_prompt_engineering/queries
+        pass_filenames: false
+
+      - id: mypy
+        language: system
+        name: mypy
+        entry: uv run mypy --config-file pyproject.toml enhanced_de_prompt_engineering
+        # types files will skip if there are no python files staged
+        # which allows to avoid empty directory error
+        types: [python]
+        pass_filenames: false
+
+      - id: pytest
+        language: system
+        name: pytest
+        entry: uv run python -m pytest tests
+        types: [python]
+        pass_filenames: false

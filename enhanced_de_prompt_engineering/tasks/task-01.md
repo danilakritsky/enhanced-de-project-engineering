@@ -32,7 +32,7 @@ ORDER BY gross_sales DESC;
 
 ## Goal
 Prompt ChatGPT to spot bottlenecks (two big sequential scans, three hash joins, spill risk).
-Ask it for at least two optimisation strategies, e.g. 
+Ask it for at least two optimisation strategies, e.g.
 Rewrite with window functions to remove the self-aggregating sub-query.
 Filter early by moving status='FULFILLED' and the date predicate into CTEs.
 Create a partial index on order_items(created_at, status, order_id) WHERE status=‘FULFILLED’.
