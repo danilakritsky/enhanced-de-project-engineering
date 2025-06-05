@@ -58,7 +58,7 @@ repos:
       - id: mypy
         language: system
         name: mypy
-        entry: uv run mypy --config-file pyproject.toml enhanced_de_prompt_engineering
+        entry: uv run mypy --config-file pyproject.toml tests
         # types files will skip if there are no python files staged
         # which allows to avoid empty directory error
         types: [python]
