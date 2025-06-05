@@ -217,3 +217,57 @@ create index concurrently if not exists idx_orders_created_at
 - Regularly monitor and maintain indexes to avoid bloat and ensure continued performance.
 
 *Next step: Benchmark with EXPLAIN ANALYZE and compare original vs. optimized query.*
+
+# Step 6: Benchmark With EXPLAIN ANALYZE
+
+## How to Benchmark
+- Use `EXPLAIN (ANALYZE, BUFFERS)` to capture query plan, runtime, I/O, and memory usage.
+- Run each query at least twice (to account for caching effects) and use the slower result for a conservative estimate.
+- Compare the original and optimized queries on the same dataset and hardware.
+
+## Example Benchmark Statements
+```sql
+-- Original query
+explain (analyze, buffers)
+SELECT ... -- original query here
+;
+
+-- Optimized query
+explain (analyze, buffers)
+with gross_sales_per_order as (
+    select order_id, sum(quantity * unit_price) as gross_sales
+    from order_items
+    where status = 'FULFILLED'
+    group by order_id
+),
+refunds_per_order as (
+    select order_id, coalesce(sum(amount), 0) as total_refund
+    from refunds
+    where created_at = '2024-06-10'
+    group by order_id
+)
+select o.order_id, o.customer_id, gs.gross_sales, coalesce(r.total_refund, 0) as total_refund, c.iso_code as currency
+from orders o
+left join gross_sales_per_order gs on gs.order_id = o.order_id
+left join refunds_per_order r on r.order_id = o.order_id
+left join currencies c on c.currency_id = o.currency_id
+where o.created_at = '2024-06-10'
+order by gs.gross_sales desc;
+```
+
+## Comparison Table (Template)
+| Metric                | Original Query | Optimized Query |
+|-----------------------|:-------------:|:--------------:|
+| Total Runtime (ms)    |               |                |
+| Shared Read Blocks    |               |                |
+| Shared Hit Blocks     |               |                |
+| Memory Usage (MB)     |               |                |
+| Join Strategy         |               |                |
+| Sort Method           |               |                |
+
+## Summary & Recommendation
+- The optimized query should show lower runtime, fewer read blocks, and more efficient join/sort strategies.
+- If the optimized query meets the SLA (<15s) and shows improved resource usage, recommend it for production.
+- Continue to monitor performance as data grows and revisit indexes/plan as needed.
+
+*Next step: Output the final production query and checklist.*
