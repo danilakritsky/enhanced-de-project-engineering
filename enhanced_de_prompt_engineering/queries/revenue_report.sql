@@ -1,4 +1,4 @@
--- Optimized revenue report query using CTEs (SQLite/Postgres compatible)
+-- Optimized revenue report query using CTEs (Postgres only)
 with gross_sales_per_order as (
     select
         order_id,
@@ -21,8 +21,8 @@ select
     o.order_id,
     o.customer_id,
     gs.gross_sales,
-    c.iso_code as currency,
-    coalesce(r.total_refund, 0) as total_refund
+    coalesce(r.total_refund, 0) as total_refund,
+    c.iso_code as currency
 from orders as o
     left join gross_sales_per_order as gs on o.order_id = gs.order_id
     left join refunds_per_order as r on o.order_id = r.order_id

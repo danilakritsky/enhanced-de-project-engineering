@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "A set of tasks to practice prompt engineering for Data Engineering use cases."
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "psycopg2-binary>=2.9.10",
+]
 
 [dependency-groups]
 dev = [
@@ -22,7 +24,8 @@ exclude_rules = [
   "ambiguous.column_count",  # allow using SELECT *
   "ambiguous.column_references",  # allow GROUP BY ALL
   "structure.using",  # allow USING instead of explicit ON
-  "structure.unused_cte"  # leave unused CTE for reference
+  "structure.unused_cte",  # leave unused CTE for reference
+  "structure.column_order",  # do not enforce column order in SELECT
 ]
 max_line_length = 120
 

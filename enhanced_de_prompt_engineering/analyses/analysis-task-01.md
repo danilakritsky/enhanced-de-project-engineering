@@ -133,3 +133,44 @@ order by gs.gross_sales desc;
 - In production, this date should be parameterized or replaced with a dynamic expression to reflect the reporting period (e.g., yesterday's date).
 
 *Next step: Replace the SQL in the .sql file, update the test, and verify correctness.*
+
+# Step 4: Replace Subquery with FILTER (PostgreSQL only)
+
+In PostgreSQL, the refunds subquery can be replaced with a window function using the FILTER clause for more concise and potentially more efficient aggregation. However, since SQLite does not support FILTER in window functions, the CTE approach is retained for cross-database compatibility.
+
+## PostgreSQL-Only Version Using FILTER
+```sql
+with gross_sales_per_order as (
+    select
+        order_id,
+        sum(quantity * unit_price) as gross_sales
+    from order_items
+    where status = 'FULFILLED'
+    group by order_id
+)
+select
+    o.order_id,
+    o.customer_id,
+    gs.gross_sales,
+    coalesce(sum(r.amount) filter (where r.created_at = current_date - 1), 0) as total_refund,
+    c.iso_code as currency
+from orders o
+left join gross_sales_per_order gs on gs.order_id = o.order_id
+left join refunds r on r.order_id = o.order_id
+left join currencies c on c.currency_id = o.currency_id
+where o.created_at = current_date - 1
+group by o.order_id, o.customer_id, gs.gross_sales, c.iso_code
+order by gs.gross_sales desc;
+```
+
+## Explanation
+- The `sum(r.amount) filter (where r.created_at = current_date - 1)` computes the total refund for each order for the previous day, inline, without a subquery or CTE.
+- This approach is more concise and can be more efficient in PostgreSQL, but is not portable to SQLite.
+- For maximum compatibility and testability, the CTE-based approach is used in the main `.sql` file and tests.
+
+*Next step: Recommend indexes for the optimized query.*
+
+## Note: Project Focus Shift to PostgreSQL Only
+- From this point forward, the implementation, optimizations, and tests will focus exclusively on PostgreSQL.
+- This allows us to leverage advanced Postgres features (e.g., FILTER, partial indexes, advanced window functions) and optimize for production performance.
+- SQLite compatibility will no longer be maintained or tested.
