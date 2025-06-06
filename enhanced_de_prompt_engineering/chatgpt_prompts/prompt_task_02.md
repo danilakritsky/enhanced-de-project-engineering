@@ -1,16 +1,32 @@
 Create a detailed, step-by-step plan to build the project, starting from a high-level blueprint.
-Then break it into smaller, incremental tasks that are easy to test and implement safely, while still moving the project forward.
+This is an end to end plan that will be given an LLM agent to guide it in solving the task.
+Treat the agent as a proficient data engineer.
+You need to write the instructions in a way so that any LLM agent will find it straightforward and easy to follow. The plan should also promote iterative development, with clearly defined subtasks.
+
+Break the plan into smaller, incremental tasks that are easy to test and implement safely, while still moving the project forward.
 Iterate on the task breakdown until each step is the right size, no big jumps, no isolated code.
 Once finalized, turn each step into a well-structured code-generation prompt for an LLM.
+
 Use test-driven development, follow best practices, and ensure that each prompt builds on the last, with all code fully integrated.
+Tests should be written before queries, as is expected with TDD.
 Format each prompt clearly using markdown, tagged as code. Avoid leaving unused or disconnected code.
+
 The LLM should provide the solution to the task in a markdown file, with explanations.
 Code should be saved in respective source files.
 
-Note that LLM should respect the current project structure and the existing solutions to the previous task should not be modified.
-In order to understand the repo better first LLM should the existing files first, and only after that move on with the solution.
-Source files should be placed into respective directories.
+You should not make any make assumptions about the project's strucuture let the LLM agent figure it out itself.
+LLM should respect the current project structure and the existing solutions to the previous task should not be modified.
+In order to understand the repo outline better LLM should start with scanning the existing files and directories, and only after that move on with working on the solution.
+Source files should be placed into respective directories identified by the LLM during repo structure analysis.
+
+
+
 This is the second task that LLM should solve.
+IMPORTANT Don't solve the task yourself, don't generate any code, don't suggest project structure, filenames  - simply provide a step by step plan, and emphasize project goals and ahering to the existing project structure.
+
+The deliverables that we need to provide are SQL files with the queries, tests for running the queries, and step by step analysis outlining each step the Agent takes when solving the task.
+
+IMPORTANT Return the plan as a single markdown block and make sure to not use ANY nested markdown blocks.
 
 # Task 2
 
