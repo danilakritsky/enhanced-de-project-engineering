@@ -1,20 +1,21 @@
 import os
+from typing import Generator
 
 import psycopg2
 import pytest
 
-POSTGRES_DSN = os.getenv(
+POSTGRES_DSN: str = os.getenv(
     "POSTGRES_TEST_DSN",
     "dbname=de_test user=de_test password=de_test host=localhost port=5432"
 )
 
 @pytest.fixture(scope="module")
-def pg_conn():
+def pg_conn() -> Generator[psycopg2.extensions.connection, None, None]:
     """
     Set up a PostgreSQL connection for testing. Ensures a clean schema and sample data for all tests.
     """
-    conn = psycopg2.connect(POSTGRES_DSN)
-    cur = conn.cursor()
+    conn: psycopg2.extensions.connection = psycopg2.connect(POSTGRES_DSN)
+    cur: psycopg2.extensions.cursor = conn.cursor()
     # Drop and recreate tables for a clean slate
     cur.execute("""
         DROP TABLE IF EXISTS order_items, refunds, orders, currencies CASCADE;

@@ -1,5 +1,3 @@
-from typing import Dict
-
 import psycopg2
 
 
@@ -13,7 +11,7 @@ def run_explain_analyze(conn: psycopg2.extensions.connection, query: str) -> str
     return "\n".join(row[0] for row in rows)
 
 
-def parse_explain_output(output: str) -> Dict[str, float]:
+def parse_explain_output(output: str) -> dict[str, float]:
     """
     Parse EXPLAIN ANALYZE output for key metrics (execution time, shared read/hit blocks).
     Returns a dictionary of metrics.

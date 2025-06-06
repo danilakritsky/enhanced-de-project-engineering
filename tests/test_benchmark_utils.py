@@ -1,4 +1,5 @@
 import os
+from typing import Generator
 
 import psycopg2
 import pytest
@@ -8,26 +9,26 @@ from enhanced_de_prompt_engineering.utils.benchmark import (
     run_explain_analyze,
 )
 
-POSTGRES_DSN = os.getenv(
+POSTGRES_DSN: str = os.getenv(
     "POSTGRES_TEST_DSN",
     "dbname=de_test user=de_test password=de_test host=localhost port=5432"
 )
 
 @pytest.fixture(scope="module")
-def pg_conn():
+def pg_conn() -> Generator[psycopg2.extensions.connection, None, None]:
     """Set up a PostgreSQL connection for testing benchmarking utils."""
-    conn = psycopg2.connect(POSTGRES_DSN)
+    conn: psycopg2.extensions.connection = psycopg2.connect(POSTGRES_DSN)
     yield conn
     conn.close()
 
-def test_run_explain_analyze_and_parse(pg_conn):
+def test_run_explain_analyze_and_parse(pg_conn: psycopg2.extensions.connection) -> None:
     """
     Test that run_explain_analyze and parse_explain_output work on a real table query.
     Only require execution_time_ms; buffer metrics are optional for small queries.
     """
-    query = "SELECT * FROM orders LIMIT 1;"
-    output = run_explain_analyze(pg_conn, query)
-    metrics = parse_explain_output(output)
+    query: str = "SELECT * FROM orders LIMIT 1;"
+    output: str = run_explain_analyze(pg_conn, query)
+    metrics: dict[str, float] = parse_explain_output(output)
     assert 'execution_time_ms' in metrics
     # Buffer metrics may not be present for trivial queries; check if present
     if 'shared_read_blocks' in metrics:
