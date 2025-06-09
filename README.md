@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="docs/repo-logo.png" alt="prompt engineering logo" width="300"/>
+</div>
+
 # Enhanced DE Prompt Engineering
 
 This repository contains experiments and solutions for data engineering tasks using prompt engineering techniques.
